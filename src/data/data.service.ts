@@ -2,24 +2,28 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class DataService {
-  private readonly storage: any[] = [];
+    private readonly storage: Record<string, { timestamp: Date; data: any }> = {};
 
-  saveData(data: any): void {
-    this.storage.push({
-      timestamp: new Date(),
-      data,
-    });
-  }
+    saveData(id: string, data: any): void {
+        this.storage[id] = {
+            timestamp: new Date(),
+            data,
+        };
+    }
 
-  getLatest(): any {
-    return this.storage[this.storage.length - 1] || null;
-  }
+    getById(id: string): { timestamp: Date; data: any } | null {
+        return this.storage[id] || null;
+    }
 
-  getAll(): any[] {
-    return this.storage;
-  }
+    getAll(): { id: string; timestamp: Date; data: any }[] {
+        return Object.entries(this.storage).map(([id, { timestamp, data }]) => ({
+            id,
+            timestamp,
+            data,
+        }));
+    }
 
-  clearAll(): void {
-    this.storage.length = 0;
-  }
+    clearAll(): void {
+        Object.keys(this.storage).forEach((key) => delete this.storage[key]);
+    }
 }
